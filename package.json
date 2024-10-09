@@ -1,0 +1,33 @@
+{
+  "name": "bananas-game",
+  "version": "1.0.0",
+  "description": "A game about going bananas.",
+  "main": "index.html",
+  "dependencies": {
+    "esbuild": "^0.21.5",
+    "nanoid": "^3.3.7",
+    "phaser": "^3.85.2",
+    "picocolors": "^1.1.0",
+    "postcss": "^8.4.47",
+    "rollup": "^4.24.0",
+    "source-map-js": "^1.2.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.8"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/randytsao24/bananas-game.git"
+  },
+  "author": "Randy Tsao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/randytsao24/bananas-game/issues"
+  },
+  "homepage": "https://github.com/randytsao24/bananas-game#readme"
+}
