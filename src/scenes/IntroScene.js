@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import Archer from '../characters/Archer';
+import DialogueBox from '../ui/DialogueBox';
 
 export default class IntroScene extends Phaser.Scene {
   constructor() {
@@ -8,6 +9,7 @@ export default class IntroScene extends Phaser.Scene {
     this.hasClicked = false;
     this.title = null;
     this.clickText = null;
+    this.dialogueBox = null;
   }
 
   createWindEffect() {
@@ -53,7 +55,7 @@ export default class IntroScene extends Phaser.Scene {
 
         // Add the archer sprite off-screen to the left
         this.archer = new Archer(this, -50, 500);
-        this.archer.setScale(2);
+        this.archer.setScale(3);
 
         // Play the walking animation
         this.archer.playWalk('right');
@@ -67,10 +69,34 @@ export default class IntroScene extends Phaser.Scene {
           onComplete: () => {
             // When the archer reaches the target position, play the idle animation
             this.archer.playIdle('down');
+            // Start the dialogue
+            this.startDialogue();
           },
         });
       },
     });
+  }
+
+  startDialogue() {
+    const dialogues = [
+      'Hello, adventurer! Welcome to the Minty Banana Adventure!',
+      "I'm here to guide you through this exciting journey.",
+      'Are you ready to begin your quest?',
+    ];
+
+    const showNextDialogue = (index) => {
+      if (index < dialogues.length) {
+        this.dialogueBox.showDialogue(dialogues[index], () => {
+          showNextDialogue(index + 1);
+        });
+      } else {
+        // All dialogues finished, proceed to the next scene or game state
+        console.log('Intro scene dialogue finished');
+        // You can add code here to transition to the next scene
+      }
+    };
+
+    showNextDialogue(0);
   }
 
   preload() {
@@ -92,8 +118,8 @@ export default class IntroScene extends Phaser.Scene {
 
     this.title = this.add
       .text(400, 200, 'Minty Banana Adventure', {
-        fontSize: '48px',
-        fontFamily: 'Arial, sans-serif',
+        fontSize: '32px',
+        fontFamily: '"Press Start 2P", "Courier", monospace',
         fontStyle: 'bold',
         color: '#42f5d1',
         stroke: '#000000',
@@ -106,8 +132,8 @@ export default class IntroScene extends Phaser.Scene {
 
     this.clickText = this.add
       .text(400, 400, 'Click to start', {
-        fontSize: '32px',
-        fontFamily: 'Arial, sans-serif',
+        fontSize: '20px',
+        fontFamily: '"Press Start 2P", "Courier", monospace',
         fontStyle: 'bold',
         color: '#FFFFFF',
         stroke: '#000000',
@@ -130,6 +156,8 @@ export default class IntroScene extends Phaser.Scene {
         this.hasClicked = true;
       }
     });
+
+    this.dialogueBox = new DialogueBox(this, 50, 50, 700, 150);
   }
 
   update() {

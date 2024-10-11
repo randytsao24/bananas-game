@@ -22,3 +22,5 @@ export const ARCHER_WALK_DIRECTIONS = {
   right: ARCHER_ANIMS.WALK_RIGHT,
   up: ARCHER_ANIMS.WALK_UP,
 };
+
+export const DIALOGUE_TYPING_SPEED = 50; // ms
