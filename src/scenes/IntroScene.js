@@ -38,8 +38,6 @@ export default class IntroScene extends Phaser.Scene {
 
   startIntro() {
     this.hasClicked = true;
-
-    // Stop the blinking tween on clickText
     this.tweens.killTweensOf(this.clickText);
 
     // Fade out the title and click text
@@ -64,12 +62,10 @@ export default class IntroScene extends Phaser.Scene {
         this.tweens.add({
           targets: this.archer,
           x: 200,
-          duration: 2000, // Adjust this value to change the walking speed
+          duration: 2000,
           ease: 'Linear',
           onComplete: () => {
-            // When the archer reaches the target position, play the idle animation
             this.archer.playIdle('down');
-            // Start the dialogue
             this.startDialogue();
           },
         });
@@ -90,9 +86,7 @@ export default class IntroScene extends Phaser.Scene {
           showNextDialogue(index + 1);
         });
       } else {
-        // All dialogues finished, proceed to the next scene or game state
         console.log('Intro scene dialogue finished');
-        // You can add code here to transition to the next scene
       }
     };
 
