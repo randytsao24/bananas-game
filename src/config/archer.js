@@ -23,4 +23,9 @@ export const ARCHER_WALK_DIRECTIONS = {
   up: ARCHER_ANIMS.WALK_UP,
 };
 
-export const DIALOGUE_TYPING_SPEED = 50; // ms
+export const ARCHER_SPRITE = {
+  key: 'archer',
+  path: 'assets/sprites/Archer-Green.png',
+  frameWidth: 32,
+  frameHeight: 32,
+};

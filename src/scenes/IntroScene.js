@@ -1,160 +1,108 @@
-import Phaser from 'phaser';
-
+import BaseScene from './base/BaseScene';
 import Archer from '../characters/Archer';
 import DialogueBox from '../ui/DialogueBox';
+import WindEffect from '../effects/WindEffect';
+import Title from '../ui/Title';
+import { INTRO_DIALOGUES } from '../data/dialogues';
+import { DIALOGUE } from '../config/constants';
+import { ARCHER_SPRITE } from '../config/archer';
 
-export default class IntroScene extends Phaser.Scene {
+export default class IntroScene extends BaseScene {
   constructor() {
     super({ key: 'IntroScene' });
     this.hasClicked = false;
     this.title = null;
-    this.clickText = null;
     this.dialogueBox = null;
+    this.windEffect = null;
+    this.archer = null;
   }
 
-  createWindEffect() {
-    const windParticle = this.make.graphics({ x: 0, y: 0, add: false });
-    windParticle.fillStyle(0xffffff, 1);
-    windParticle.fillCircle(4, 4, 4);
-    windParticle.generateTexture('wind', 8, 8);
+  preload() {
+    super.preload();
+    this.load.image('background', 'assets/background/background-two.png');
+    this.load.spritesheet(ARCHER_SPRITE.key, ARCHER_SPRITE.path, {
+      frameWidth: ARCHER_SPRITE.frameWidth,
+      frameHeight: ARCHER_SPRITE.frameHeight,
+    });
+  }
 
-    const particles = this.add
-      .particles(0, 0, 'wind', {
-        frame: { frames: [0], cycle: true },
-        blendMode: 'ADD',
-        scale: { start: 0.3, end: 0.1 },
-        alpha: { start: 0.6, end: 0.2 },
-        speed: { min: 20, max: 100 },
-        angle: { min: -10, max: 10 },
-        lifespan: { min: 4000, max: 8000 },
-        frequency: 20,
-        gravityY: -2,
-        x: { min: -100, max: 900 },
-        y: { min: -100, max: 700 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-100, -100, 1000, 800) },
-      })
-      .setDepth(100);
+  create() {
+    this.setBackground('background');
+
+    this.windEffect = new WindEffect(this).create();
+    this.title = new Title(this).create();
+    this.dialogueBox = new DialogueBox(
+      this,
+      DIALOGUE.BOX.X,
+      DIALOGUE.BOX.Y,
+      DIALOGUE.BOX.WIDTH,
+      DIALOGUE.BOX.HEIGHT
+    );
+
+    this.input.once('pointerdown', this.startIntro.bind(this));
   }
 
   startIntro() {
+    if (this.hasClicked) return;
+
     this.hasClicked = true;
-    this.tweens.killTweensOf(this.clickText);
+    this.title.fadeOut(() => {
+      this.archer = new Archer(this, -50, 500);
+      this.archer.setScale(3);
+      this.archer.playWalk('right');
 
-    // Fade out the title and click text
-    this.tweens.add({
-      targets: [this.title, this.clickText],
-      alpha: 0,
-      duration: 1000,
-      ease: 'Power2',
-      onComplete: () => {
-        // Remove the texts from the scene after they've faded out
-        this.title.destroy();
-        this.clickText.destroy();
-
-        // Add the archer sprite off-screen to the left
-        this.archer = new Archer(this, -50, 500);
-        this.archer.setScale(3);
-
-        // Play the walking animation
-        this.archer.playWalk('right');
-
-        // Create a tween to move the archer to the target position
-        this.tweens.add({
-          targets: this.archer,
-          x: 200,
-          duration: 2000,
-          ease: 'Linear',
-          onComplete: () => {
-            this.archer.playIdle('down');
-            this.startDialogue();
-          },
-        });
-      },
+      this.tweens.add({
+        targets: this.archer,
+        x: 200,
+        duration: 2000,
+        ease: 'Linear',
+        onComplete: () => {
+          this.archer.playIdle('down');
+          this.startDialogue();
+        },
+      });
     });
   }
 
   startDialogue() {
-    const dialogues = [
-      'Hello, adventurer! Welcome to the Minty Banana Adventure!',
-      "I'm here to guide you through this exciting journey.",
-      'Are you ready to begin your quest?',
-    ];
-
     const showNextDialogue = (index) => {
-      if (index < dialogues.length) {
-        this.dialogueBox.showDialogue(dialogues[index], () => {
-          showNextDialogue(index + 1);
+      if (index < INTRO_DIALOGUES.sequence.length) {
+        const dialogueId = INTRO_DIALOGUES.sequence[index];
+        const dialogueItem = INTRO_DIALOGUES.items[dialogueId];
+
+        this.dialogueBox.showDialogue(dialogueItem, (response) => {
+          if (response) {
+            const nextDialogue = INTRO_DIALOGUES.items[response.nextDialogue];
+            this.dialogueBox.showDialogue(nextDialogue, () => {
+              if (response.action) {
+                this.handleAction(response.action);
+              }
+            });
+          } else {
+            showNextDialogue(index + 1);
+          }
         });
-      } else {
-        console.log('Intro scene dialogue finished');
       }
     };
 
     showNextDialogue(0);
   }
 
-  preload() {
-    console.log('IntroScene preload');
-    this.load.image('background', 'assets/background/background-two.png');
-    this.load.spritesheet('archer', 'assets/sprites/Archer-Green.png', {
-      frameWidth: 32,
-      frameHeight: 32,
-    });
+  handleAction(action) {
+    switch (action) {
+      case 'START_GAME':
+        // TODO: Transition to game scene
+        console.log('Starting the game...');
+        break;
+      case 'RESTART':
+        this.scene.restart();
+        break;
+    }
   }
 
-  create() {
-    console.log('IntroScene create');
-
-    const backgroundImg = this.add.image(400, 300, 'background');
-    backgroundImg.setDisplaySize(800, 600);
-
-    this.createWindEffect();
-
-    this.title = this.add
-      .text(400, 200, 'Minty Banana Adventure', {
-        fontSize: '32px',
-        fontFamily: '"Press Start 2P", "Courier", monospace',
-        fontStyle: 'bold',
-        color: '#42f5d1',
-        stroke: '#000000',
-        strokeThickness: 6,
-        shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 4, stroke: true, fill: true },
-      })
-      .setOrigin(0.5);
-
-    this.title.setTint(0xffaaaa, 0xffffaa, 0xaaaaff, 0xffaaff);
-
-    this.clickText = this.add
-      .text(400, 400, 'Click to start', {
-        fontSize: '20px',
-        fontFamily: '"Press Start 2P", "Courier", monospace',
-        fontStyle: 'bold',
-        color: '#FFFFFF',
-        stroke: '#000000',
-        strokeThickness: 4,
-      })
-      .setOrigin(0.5);
-
-    this.tweens.add({
-      targets: this.clickText,
-      alpha: { from: 0.5, to: 1 },
-      duration: 1000,
-      ease: 'Power2',
-      yoyo: true,
-      repeat: -1,
-    });
-
-    this.input.once('pointerdown', () => {
-      if (!this.hasClicked) {
-        this.startIntro();
-        this.hasClicked = true;
-      }
-    });
-
-    this.dialogueBox = new DialogueBox(this, 50, 50, 700, 150);
-  }
-
-  update() {
-    // console.log('update');
+  shutdown() {
+    super.shutdown();
+    this.windEffect?.destroy();
+    this.archer?.destroy();
   }
 }

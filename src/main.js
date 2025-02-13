@@ -1,13 +1,12 @@
 import Phaser from 'phaser';
 
 import IntroScene from './scenes/IntroScene.js';
-import GameScene from './scenes/GameScene.js';
 
 const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  scene: [IntroScene, GameScene],
+  scene: [IntroScene],
 };
 
 new Phaser.Game(config);

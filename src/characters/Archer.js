@@ -1,4 +1,4 @@
-import { ARCHER_ANIMS, ARCHER_IDLE_DIRECTIONS, ARCHER_WALK_DIRECTIONS } from '../utils/constants';
+import { ARCHER_ANIMS, ARCHER_IDLE_DIRECTIONS, ARCHER_WALK_DIRECTIONS } from '../config/archer';
 
 export default class Archer extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
